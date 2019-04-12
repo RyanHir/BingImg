@@ -1,2 +1,2 @@
 bing: main.cpp
-	g++ -lcuro -lcurlpp main.cpp -o bing
+	g++ -lcurl -lcurlpp main.cpp -o bing --std=c++11
