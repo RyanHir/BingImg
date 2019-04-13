@@ -29,37 +29,17 @@ int main(int argc, char *argv[])
 
 	rapidjson::Value &ahh = d["images"];
 
-	if(ahh.GetArray().Capacity() != 1) {
-		for(rapidjson::Value::ConstValueIterator x=ahh.Begin(); x != ahh.End(); x++) {
-			std::ofstream myfile;
-			curlpp::Easy img;
-
-			const rapidjson::Value &imgData = (*x);
-
-			std::string parsed = std::string("https://www.bing.com") + imgData["url"].GetString();
-
-			std::string title = imgData["title"].GetString();
-
-			myfile.open(title + std::string(".jpg"));
-
-			img.setOpt(new curlpp::options::WriteStream(&myfile));
-			img.setOpt(new curlpp::options::Url(parsed));
-
-			img.perform();
-
-			myfile.close();
-
-			return EXIT_SUCCESS;
-		}
-	} else {
+	for(rapidjson::Value::ConstValueIterator x=ahh.Begin(); x != ahh.End(); x++) {
 		std::ofstream myfile;
 		curlpp::Easy img;
 
-		const rapidjson::Value &imgData = ahh[0];
+		const rapidjson::Value &imgData = (*x);
 
 		std::string parsed = std::string("https://www.bing.com") + imgData["url"].GetString();
 
-		myfile.open(imgData["title"].GetString() + std::string(".jpg"));
+		std::string title = imgData["title"].GetString();
+
+		myfile.open(title + std::string(".jpg"));
 
 		img.setOpt(new curlpp::options::WriteStream(&myfile));
 		img.setOpt(new curlpp::options::Url(parsed));
