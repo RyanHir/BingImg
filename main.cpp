@@ -36,9 +36,7 @@ int main(int argc, char *argv[])
 
 		std::string parsed = std::string("https://www.bing.com") + imgData["url"].GetString();
 
-		std::string title = imgData["title"].GetString();
-
-		myfile.open(title + std::string(".jpg"));
+		myfile.open(imgData["title"].GetString() + std::string(".jpg"));
 
 		img.setOpt(new curlpp::options::WriteStream(&myfile));
 		img.setOpt(new curlpp::options::Url(parsed));
