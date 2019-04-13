@@ -1,5 +1,6 @@
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 
 #include <curlpp/cURLpp.hpp>
 #include <curlpp/Easy.hpp>
@@ -17,21 +18,48 @@ int main(int argc, char *argv[])
 	rapidjson::Document d;
 
 	curlpp::Easy request;
-	curlpp::Easy img;
 
-	std::stringstream ahh;
-	std::ofstream myfile;
-	try {
-		request.setOpt(new curlpp::options::WriteStream(&ahh));
-		request.setOpt(new curlpp::options::Url(url));
+	std::stringstream ahhOne;
+	request.setOpt(new curlpp::options::WriteStream(&ahhOne));
+	request.setOpt(new curlpp::options::Url(url));
 
-		request.perform();
+	request.perform();
 
-		d.Parse(ahh.str().c_str());
-		std::string date = d["images"][0]["startdate"].GetString();
-		std::string parsed = std::string("https://www.bing.com") + d["images"][0]["url"].GetString();
+	d.Parse(ahhOne.str().c_str());
 
-		myfile.open(date + ".jpg");
+	rapidjson::Value &ahh = d["images"];
+
+	if(ahh.GetArray().Capacity() != 1) {
+		for(rapidjson::Value::ConstValueIterator x=ahh.Begin(); x != ahh.End(); x++) {
+			std::ofstream myfile;
+			curlpp::Easy img;
+
+			const rapidjson::Value &imgData = (*x);
+
+			std::string parsed = std::string("https://www.bing.com") + imgData["url"].GetString();
+
+			std::string title = imgData["title"].GetString();
+
+			myfile.open(title + std::string(".jpg"));
+
+			img.setOpt(new curlpp::options::WriteStream(&myfile));
+			img.setOpt(new curlpp::options::Url(parsed));
+
+			img.perform();
+
+			myfile.close();
+
+			return EXIT_SUCCESS;
+		}
+	} else {
+		std::ofstream myfile;
+		curlpp::Easy img;
+
+		const rapidjson::Value &imgData = ahh[0];
+
+		std::string parsed = std::string("https://www.bing.com") + imgData["url"].GetString();
+
+		myfile.open(imgData["title"].GetString() + std::string(".jpg"));
 
 		img.setOpt(new curlpp::options::WriteStream(&myfile));
 		img.setOpt(new curlpp::options::Url(parsed));
@@ -39,13 +67,8 @@ int main(int argc, char *argv[])
 		img.perform();
 
 		myfile.close();
+
 		return EXIT_SUCCESS;
-	}
-	catch ( curlpp::LogicError & e ) {
-		std::cout << e.what() << std::endl;
-	}
-	catch ( curlpp::RuntimeError & e ) {
-		std::cout << e.what() << std::endl;
 	}
 
 	return EXIT_FAILURE;
