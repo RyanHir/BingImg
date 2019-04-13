@@ -1,6 +1,5 @@
 #include <sstream>
 #include <fstream>
-#include <algorithm>
 
 #include <curlpp/cURLpp.hpp>
 #include <curlpp/Easy.hpp>
